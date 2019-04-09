@@ -1,0 +1,3 @@
+TextView.getPaint().setShader(
+                new LinearGradient(0,0,0,TextView.getLineHeight(),
+                        startColor, endColor, Shader.TileMode.REPEAT));
