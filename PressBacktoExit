@@ -1,0 +1,57 @@
+private Toast toast = null;                         //Show toast
+private boolean backPressedToExitOnce = false;          //kiểm tra user nhấn back 2 lần để thoát ứng dụng
+
+//thoát khi nhấn back 2 lần
+    @Override
+    public void onBackPressed() {
+        if (backPressedToExitOnce) {
+            Intent startMain = new Intent(Intent.ACTION_MAIN);
+            startMain.addCategory(Intent.CATEGORY_HOME);
+            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(startMain);
+            finish();
+        } else {
+            this.backPressedToExitOnce = true;
+            showToast("Press again to exit");
+            new Handler().postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    backPressedToExitOnce = false;
+                }
+            }, 2000);
+        }
+    }
+    //show thông báo
+    private void showToast(String message) {
+        if (this.toast == null) {
+            // Create toast if found null, it would he the case of first call only
+            this.toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
+
+        } else if (this.toast.getView() == null) {
+            // Toast not showing, so create new one
+            this.toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
+
+        } else {
+            // Updating toast message is showing
+            this.toast.setText(message);
+        }
+
+        // Showing toast finally
+        this.toast.show();
+    }
+    //xóa thông báo
+    private void killToast() {
+        if (this.toast != null) {
+            this.toast.cancel();
+        }
+    }
+
+    protected void onPause() {
+        killToast();
+        popupWindow.dismiss();
+        if (getFragmentManager().findFragmentByTag("versionDialog")!=null) {
+            fragment.dismiss();
+        }
+        super.onPause();
+    }
