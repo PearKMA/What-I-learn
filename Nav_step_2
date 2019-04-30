@@ -1,0 +1,11 @@
+#1 Create new style:
+
+                  <style name="AppTheme.NoActionBar">
+                      <item name="windowNoTitle">true</item>
+                      <item name="windowActionBar">false</item>
+                   </style>
+  
+#2Add style to Mainactivity in Manifest 
+    
+            <activity android:name=".MainActivity"
+                  android:theme="@style/AppTheme.NoActionBar">
