@@ -5,7 +5,19 @@
                       <item name="windowActionBar">false</item>
                    </style>
   
-#2Add style to Mainactivity in Manifest 
+#2 Add style to Mainactivity in Manifest 
     
             <activity android:name=".MainActivity"
                   android:theme="@style/AppTheme.NoActionBar">
+                  
+                  
+                  
+#3 Add new style:
+  ->values -> new values resource -> Name: styles ; add qualifiers: Version, API level 21 -> OK
+  
+  -> add: (chế độ full screen nhưng vẫn giữ thanh trạng thái pin, sóng, ...)
+  <style name="AppTheme.NoActionBar">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
