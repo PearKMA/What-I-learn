@@ -45,7 +45,7 @@
   
   3. Serialization and Singleton
     public class SerializedSingleton implements Serializable{
-
+        private static final long serialVersionUID = 1L;  //Ensure previous object and object now is 1
         private SerializedSingleton(){}
     
         private static class SingletonHelper{
