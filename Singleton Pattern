@@ -1,0 +1,79 @@
+#Ensure only 1 instance (call constructor only and at least 1 time when app running)
+#tl: Đảm bảo chỉ có 1 biến instance tạo constructor 1 lần duy nhất khi class được tạo (tức là khi set giá trị xong thì gọi
+ở class nào cũng vẫn giữ kết quả)
+
+=> Use when create 1 and only 1 object when app running
+#tl: Sử dụng khi muốn tạo duy nhất 1 đối tượng xuyên suốt quá trình chạy ứng dụng
+
+1.Case single thread:
+  public class Singleton {
+    // private static instance
+    private static Singleton sInstance;
+    // private constructor for prevent outside initialization
+    private Singleton() {
+    }
+    // static getter
+    public static Singleton getInstance() {
+        if (sInstance == null) {
+            sInstance = new Singleton();
+        }
+        return sInstance;
+    }
+  }
+  
+2.Multi thread
+  public class Singleton {
+    // adding volatile keyword here
+    private static volatile Singleton sInstance;
+    private Singleton() {
+    }
+    public static Singleton getInstance() {
+        // using local variable for storing volatile object
+        // for increasing performance
+        Singleton result = sInstance;
+        if (result == null) {
+            synchronized (Singleton.class) {
+                result = sInstance;
+                if (result == null) {
+                    sInstance = result =  new Singleton();
+                }
+            }
+        }
+        return result;
+    }
+  }
+  
+  3. Serialization and Singleton
+    public class SerializedSingleton implements Serializable{
+
+        private SerializedSingleton(){}
+    
+        private static class SingletonHelper{
+          private static SerializedSingleton instance = new SerializedSingleton();
+        }
+    
+        public static SerializedSingleton getInstance(){
+          return SingletonHelper.instance;
+        }   
+        //Đảm bảo khi có 1 truy cập tới nó sẽ ko bị phá vỡ singleton (không tạo mới object)
+        protected Object readResolve() {
+          return getInstance();
+        }
+      }
+      
+      =>public static void main(String[] args) throws FileNotFoundException, IOException, ClassNotFoundException {
+            SerializedSingleton instanceOne = SerializedSingleton.getInstance();
+            ObjectOutput out = new ObjectOutputStream(new FileOutputStream(
+                "filename.ser"));
+            out.writeObject(instanceOne);
+            out.close();
+
+            //deserailize from file to object
+            ObjectInput in = new ObjectInputStream(new FileInputStream(
+                "filename.ser"));
+            SerializedSingleton instanceTwo = (SerializedSingleton) in.readObject();
+            in.close();
+
+            System.out.println("instanceOne hashCode="+instanceOne.hashCode());
+            System.out.println("instanceTwo hashCode="+instanceTwo.hashCode()); =>same result
+          }
