@@ -33,3 +33,96 @@
             }
         }
     }
+    
+    
+    
+    ##########################################################################################################
+#ver 2:
+private static final int PERMISSION_REQUEST_READ_EXTERNAL_STORAGE = 1; 
+private SharedPreferences sharedPreferences;
+private boolean storagePermissionGranted;
+#oncreate:
+sharedPreferences = getApplicationContext().getSharedPreferences(Constants.MY_SHARED_PREFERENCES,
+                MODE_PRIVATE);
+getExternalStoragePermission();
+   //After asking permission is done
+if (storagePermissionGranted){
+    //Open Storage or whatever
+}
+###
+private void getExternalStoragePermission() {
+        if (ContextCompat.checkSelfPermission(getApplicationContext(),
+                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            //Permission not granted
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                //Can ask user for permission
+
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        PERMISSION_REQUEST_READ_EXTERNAL_STORAGE);
+
+            } else {
+                boolean userAskedPermissionBefore = sharedPreferences.getBoolean(Constants.USER_ASKED_STORAGE_PERMISSION_BEFORE,
+                        false);
+
+                if (userAskedPermissionBefore) {
+                    //If User was asked permission before and denied
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+
+                    alertDialogBuilder.setTitle("Permission needed");
+                    alertDialogBuilder.setMessage("Storage permission needed for accessing photos");
+                    alertDialogBuilder.setPositiveButton("Open Setting", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Intent intent = new Intent();
+                            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                            Uri uri = Uri.fromParts("package", MainActivity.this.getPackageName(),
+                                    null);
+                            intent.setData(uri);
+                            MainActivity.this.startActivity(intent);
+                        }
+                    });
+                    alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Log.d(TAG, "onClick: Cancelling");
+                        }
+                    });
+
+                    AlertDialog dialog = alertDialogBuilder.create();
+                    dialog.show();
+                }
+                else {
+                    //If user is asked permission for first time
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                            PERMISSION_REQUEST_READ_EXTERNAL_STORAGE);
+
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean(Constants.USER_ASKED_STORAGE_PERMISSION_BEFORE, true);
+                    editor.apply();
+                }
+            }
+
+        } else {
+            storagePermissionGranted = true;
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        storagePermissionGranted = false;
+        switch (requestCode) {
+            case PERMISSION_REQUEST_READ_EXTERNAL_STORAGE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Granted
+                    storagePermissionGranted = true;
+
+                } else {
+                    //Denied
+                }
+            }
+        }
+    }
+        
