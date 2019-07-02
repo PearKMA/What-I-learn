@@ -1,0 +1,51 @@
+#1: Use Profiler in Android Studio and combine with this:
+  https://github.com/square/leakcanary
+
+#2: Resolution:
+  #2.1: Callback,interface:
+   ==> Unregister callback, interface in function onDestroy, onDetach ...
+  #2.2: Inner class
+   ==> Change to static
+        public class GoodActivity extends Activity {
+          private AsyncTask mLongRunningTask;
+          private TextView mMessageView;
+          @Override
+          protected void onCreate(Bundle savedInstanceState) {
+                super.onCreate(savedInstanceState);
+                setContentView(R.layout.layout_good_activity);
+                mMessageView = (TextView) findViewById(R.id.messageView);
+                mLongRunningTask = new LongRunningTask(mMessageView).execute();
+           }
+          @Override
+          protected void onDestroy() {
+              super.onDestroy();
+              mLongRunningTask.cancel(true);
+          }
+          private static class LongRunningTask extends AsyncTask<Void, Void, String> {
+              private final WeakReference<TextView> messageViewReference;
+              public LongRunningTask(TextView messageView) {
+                  this.messageViewReference = new WeakReference<>(messageView);
+              }
+              @Override
+              protected String doInBackground(Void... params) {
+                  String message = null;
+                  if (!isCancelled()) {
+                      message = "I am finally done!";
+                  }
+                  return message;
+              }
+              @Override
+              protected void onPostExecute(String result) {
+                  TextView view = messageViewReference.get();
+                  if (view != null) {
+                      view.setText(result);
+                  }
+              }
+            }
+          }
+  #2.3: Anonymous class
+   ==> understand and judge when it is safe to use them and when not
+  #2.4: Bitmap
+   ==> load large bitmaps by scaling them down and use bitmap caching and pooling whenever possible to reduce memory usage
+  #2.5: Context
+   ==> understand the difference between the activity-level context and the application-level context
