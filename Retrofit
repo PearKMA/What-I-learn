@@ -3,6 +3,8 @@
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
     
+    - Don't forget add:
+    <uses-permission android:name="android.permission.INTERNET"/>
 #2: add plugin
     - Add plugin RoboPOJOGenerator to android studio
     - New -> Generate POJO from JSON -> add json ->next
