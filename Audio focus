@@ -48,11 +48,21 @@ void disableAudioOtherApp() {
                             .setAcceptsDelayedFocusGain(true)
                             .setOnAudioFocusChangeListener(focusChange -> {
                                 //Handle Focus Change
+                                if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+                                    isCallingOrAlarm(false);
+                                } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+                                    isCallingOrAlarm(true);
+                                }
                             }).build()
                     );
                 } else {
                     mAudioManager.requestAudioFocus(focusChange -> {
                                 //Handle Focus Change for earliest version of oreo
+                                if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+                                    isCallingOrAlarm(false);
+                                } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+                                    isCallingOrAlarm(true);
+                                }
                             },
                             AudioManager.STREAM_MUSIC,
                             AudioManager.AUDIOFOCUS_GAIN);
