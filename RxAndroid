@@ -1,0 +1,19 @@
+implementation "io.reactivex.rxjava3:rxjava:3.0.0-RC4"
+implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+
+
+I. Rx Java
+  1. Class cơ bản:
+  -> Dựa vào đặc điểm mà chọn class thích hợp nhất
+    - Flowable: đa luồng, backpressure
+    - Observable: đa luồng
+    - Completable: 1 luồng của đúng 1 item hoặc 1 lỗi
+    - Single: 1 luồng ko có item nhưng báo hoàn thành hoặc 1 lỗi
+    - Maybe: 1 luồng ko item, duy nhất 1 item hoặc 1 lỗi
+    
+!Backpressure:
+  e.g: Flowable.create(subscriber -> {....}, BackpressureStrategy.DROP)
+        .observeOn(...)
+        .subscribe(...);
+
+    
