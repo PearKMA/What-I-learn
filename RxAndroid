@@ -15,5 +15,15 @@ I. Rx Java
   e.g: Flowable.create(subscriber -> {....}, BackpressureStrategy.DROP)
         .observeOn(...)
         .subscribe(...);
-
-    
+  +BackpressureStrategy.BUFFER:  buffer lại tất cả các giá trị onNext cho đến khi downstream sử dụng nó 
+                                  (dễ bị OOM nếu không cung cấp một ngưỡng nhất định cho Flowable.)
+  +BackpressureStrategy.DROP:     subcriber của bạn không theo kịp luồng phát ra thì sẽ drop giá trị onNext gần nhất.
+  +BackpressureStrategy.LATEST:   Giữ lại duy nhất giá trị onNext mới nhất, 
+                                  overwrite bất kỳ giá trị nào trước đó nếu downstream không theo kịp.
+  +BackpressureStrategy.ERROR:    Phát ra thông báo lỗi nếu downstream không theo kịp.
+  +BackpressureStrategy.MISSING:  không quan tâm đến backpressure. Và giao lại cho downstream xử lý trên các hàm onBackpressureXXX
+*onBackpressureXXX: (tương tự bên trên)
+  +onBackpressureBuffer()
+  +onBackpressureDrop() 
+  +onBackpressureLatest() 
+  
