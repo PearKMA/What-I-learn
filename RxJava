@@ -1,0 +1,72 @@
+implementation "io.reactivex.rxjava3:rxjava:3.0.0-RC4"
+
+
+I. Rx Java
+  1. Class cơ bản:
+  -> Dựa vào đặc điểm mà chọn class thích hợp nhất
+    - Flowable: đa luồng, backpressure
+    - Observable: đa luồng
+    - Completable: 1 luồng của đúng 1 item hoặc 1 lỗi
+    - Single: 1 luồng ko có item nhưng báo hoàn thành hoặc 1 lỗi
+    - Maybe: 1 luồng ko item, duy nhất 1 item hoặc 1 lỗi
+    
+!Backpressure:
+  e.g: Flowable.create(subscriber -> {....}, BackpressureStrategy.DROP)
+        .observeOn(...)
+        .subscribe(...);
+  +BackpressureStrategy.BUFFER:  buffer lại tất cả các giá trị onNext cho đến khi downstream sử dụng nó 
+                                  (dễ bị OOM nếu không cung cấp một ngưỡng nhất định cho Flowable.)
+  +BackpressureStrategy.DROP:     subcriber của bạn không theo kịp luồng phát ra thì sẽ drop giá trị onNext gần nhất.
+  +BackpressureStrategy.LATEST:   Giữ lại duy nhất giá trị onNext mới nhất, 
+                                  overwrite bất kỳ giá trị nào trước đó nếu downstream không theo kịp.
+  +BackpressureStrategy.ERROR:    Phát ra thông báo lỗi nếu downstream không theo kịp.
+  +BackpressureStrategy.MISSING:  không quan tâm đến backpressure. Và giao lại cho downstream xử lý trên các hàm onBackpressureXXX
+*onBackpressureXXX: (tương tự bên trên)
+  +onBackpressureBuffer()
+  +onBackpressureDrop() 
+  +onBackpressureLatest() 
+  
+  2. Cách tạo:  https://github.com/ReactiveX/RxJava/wiki/Creating-Observables
+    e.g: def list = [5, 6, 7, 8]
+         Observable<Integer> o = Observable.from(list); 
+         -> để subcribe:   o.subscribe(new Subscriber<Integer>() {
+            public void onNext(Integer integer) {
+                Log.i("onNext", String.valueOf(integer)); 
+            }
+    + from: phát ra từng item trong list //5,6,7,8
+    +just: phát ra list luôn //list
+    +defer: Không thực thi trừ khi có subcriber và sẽ tạo mới 1 Observable cho mỗi Sub (tiện hơn create nhưng hiệu năng kém do tạo mới
+            Observable cho mỗi Sub, tiện: ko cần gọi oncomplete, triển khai chính xác)
+            e.g: Observable.defer(() -> {
+                  String text = a;
+                  if(text.isEmpty())
+                     return Observable.error("...");
+                  return Observable.just(text);
+                });
+     +interval: phát ra onNext từ 0 đến đến vô cực sau mỗi khoảng tg 
+     +create: Xây dựng thủ công
+              e.g: 
+            Observable.create((ObservableOnSubscribe<Integer>) emitter -> {
+            emitter.onNext(1);
+            emitter.onComplete();
+            }).subscribe(new Observer<Integer>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                
+            }
+
+            @Override
+            public void onNext(Integer integer) {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
