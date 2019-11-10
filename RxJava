@@ -1,5 +1,5 @@
 implementation "io.reactivex.rxjava3:rxjava:3.0.0-RC4"
-
+implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
 
 I. Rx Java
   1. Class cơ bản:
@@ -70,3 +70,17 @@ I. Rx Java
 
             }
         });
+
+
+II. RxAndroid
+  1. Sử dụng tương tự RxJava
+  2. Tải dữ liệu ko đồng bộ
+    a.Observable sử dụng Observable.fromCallable()
+    b.Subcriber
+        Observer.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
+    c. Hủy Subcriber
+        if (mSub != null && !mSub.isUnsubscribed()) {
+          mSub.unsubscribe();
+        }
