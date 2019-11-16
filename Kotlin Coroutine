@@ -1,0 +1,133 @@
+# implementation
+  
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:x.x.x"  //-16/11: 1.3.2
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:x.x.x"
+  
+1. Start:
+  e.g: suspend fun fetch(): Model{
+    return GlobalScope.async(Dispatchers.IO) {
+        // make network call
+        // return user
+      }.await()
+    }
+  a. suspend
+    + Hàm suspend là 1 hàm có thể start, pause và resume
+    ! Chỉ cho phép gọi trong coroutines hoặc hàm suspend khác
+    //
+    e.g: 
+      GlobalScope.launch(Dispatchers.Main) {
+        val model = fetch() // fetch on IO thread
+        show(model) // back on UI thread
+      }
+  b. Bắt đầu coroutines:
+    -launch{} : Không trả về bất kì cái gì
+    -async{}  : Trả về kết quả khi hàm await() được gọi. 
+    
+        e.g:  
+          +launch:
+              GlobalScope.launch(Dispatchers.IO) {
+                fetchUserAndSaveInDatabase() // do on IO thread
+              }
+              fun fetchUserAndSaveInDatabase() {
+                 // fetch user from network
+                 // save user in database
+                 // and do not return anything
+              }
+           +async:
+              GlobalScope.launch(Dispatchers.Main) {
+                  val userOne = async(Dispatchers.IO) { fetchFirstUser() }
+                  showUsers(userOne.await()) // back on UI thread
+              }
+              fun fetchFirstUser(): User {
+                 // make network call
+                 // return user
+              }
+     !async: khi ngoại lệ xảy ra mà ko được xử lý
+     -> withContext: ngoại lệ không đc xử lý sẽ được nhận thông qua việc gọi withContext và xử lý ngoại lệ như bt
+        +withContext gần giống async nhưng không cần phải dùng await(), có thể điều chỉnh dispathcher
+     ?Khi nào nên dùng async hoặc withContext:
+        + async-await-async-await: thay bằng withContext-withContext
+        + async-async-await-await: cách dùng đúng
+        => Nói cách khác nếu chỉ có một task nên dùng withContext, multiTask: async
+  c. Dispatchers: 
++-----------------------------------+
+|         Dispatchers.Main          |
++-----------------------------------+
+| Main thread on Android, interact  |
+| with the UI and perform light     |
+| work                              |
++-----------------------------------+
+| - Calling suspend functions       |   
+| - Call UI functions               |
+| - Updating LiveData               |
++-----------------------------------+
+
++-----------------------------------+
+|          Dispatchers.IO           |
++-----------------------------------+
+| Optimized for disk and network IO |
+| off the main thread               |
++-----------------------------------+
+| - Database*                       | *Room an toàn với suspend functions, RxJava, LiveData
+| - Reading/writing files           |
+| - Networking**                    | **Các thư viện network như Retrofit tự quản lý thread 
++-----------------------------------+   nên ko yêu cầu main-safety khi xài cùng coroutines
+
++-----------------------------------+
+|        Dispatchers.Default        |
++-----------------------------------+
+| Optimized for CPU intensive work  |
+| off the main thread               |
++-----------------------------------+
+| - Sorting a list                  |
+| - Parsing JSON                    |
+| - DiffUtils                       |
++-----------------------------------+
+
+
+2. Phạm vi
+  a. Activity
+    - implement CoroutineScope
+      override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
+
+      private lateinit var job: Job
+      //cái này của kotlin sinh ra
+    - oncreate: job = launch/async ..
+    - onDestroy: job.cancel() ..
+    - thực hiện như bt
+    !(nên check lại bọn viblo) + Trong hàm chạy trong coroutine nên check điều kiện while(isActive){} để cancel công việc đang làm do lệnh cancel() tuy hủy bỏ 
+      nhưng sẽ vẫn chạy nốt đến khi hoàn thành (hàm delay() cũng có thể check còn sống hay ko)
+      + sử dụng try finally để đóng các class cần thiết vì khi cancel() sẽ luôn chạy vào hàm finally
+  b. App
+    - GlobalScope.launch(Dispatchers.Main) {
+          val userOne = async(Dispatchers.IO) { fetchFirstUser() }
+          val userTwo = async(Dispatchers.IO) { fetchSeconeUser() }
+      }
+      
+      
+3. Bắt exception
+  a. launch
+    - Tạo một listener:
+        val handler = CoroutineExceptionHandler { _, exception ->
+            Log.d(TAG, "$exception handled !")
+         }
+    - Gán vào coroutine:
+       + App:
+        e.g: GlobalScope.launch(Dispatchers.IO + handler) {
+                fetchUserAndSaveInDatabase() // do on IO thread
+             }
+       + Activity:
+          ...get() = Dispatchers.Main + job + handler
+  b. async:
+      - Sử dụng try catch để bắt ngoại lệ:
+          e.g: val deferredUser = GlobalScope.async {
+                    fetchUser()
+                }
+                ...
+               try {
+                   val user = deferredUser.await()
+               } catch (exception: Exception) {
+                  Log.d(TAG, "$exception handled !")
+               }
+  
