@@ -75,7 +75,7 @@ I. Rx Java
 II. RxAndroid
   1. Sử dụng tương tự RxJava
   2. Tải dữ liệu ko đồng bộ
-    a.Observable sử dụng Observable.fromCallable()
+    a.Observable sử dụng e.g: Observable.fromCallable()
     b.Subcriber
         Observer.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -84,3 +84,19 @@ II. RxAndroid
         if (mSub != null && !mSub.isUnsubscribed()) {
           mSub.unsubscribe();
         }
+
+  3. Timer 
+    //thực hiện task 1 lần sau 1 khoảng delay
+    Observable.timer(START_DELAY, TimeUnit.SECONDS)
+    
+    //Thực hiện task với delay, mỗi x giây
+    Observable.timer(START_DELAY, POLL_INTERVAL, TimeUnit.SECONDS)
+    
+    //nicer api
+    Observable.interval(POLL_INTERVAL, TimeUnit.SECONDS);
+    
+    //Thực hiện một interval nhưng chỉ x lần
+    Observable.interval(POLL_INTERVAL, TimeUnit.SECONDS)
+              .take(x)
+              ...
+             
