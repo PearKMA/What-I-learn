@@ -1,0 +1,55 @@
+1. Configure your Git username and email 
+    $ git config --global user.name "Hưng Lê"
+    $ git config --global user.email "hungle97hd@gmail.com"
+2. Set Up new repository for an existing code
+  a. Create .git directory
+    $ cd .../path
+    $ git init
+  b. Create .gitIgnore
+      e.g: Android: 
+            *.iml
+						.gradle
+						/local.properties
+						/.idea/caches
+						/.idea/libraries
+						/.idea/modules.xml
+						/.idea/workspace.xml
+						/.idea/navEditor.xml
+						/.idea/assetWizardSettings.xml
+						.DS_Store
+						/build
+						/captures
+						.externalNativeBuild
+						.cxx
+	c. Add all file 
+			$ git add . 
+	d. Add remote in git
+			$ git remote add origin url
+	e. Push
+			$ git push -u origin master
+			
+3. Other
+	a. $ git status   //show different between stage and working directory
+	b. $ git add
+			. //add all file for next commit
+			-u //add only tracked files(File đang theo dõi) for next commit
+			<name/directory> //add file for next commit
+	c. $ git commit -m "message"
+	d. $ git push origin <branch>
+				$ git push origin --force  // push ignore conflict
+				$ git push origin --all 	//push all local to remote branch
+				$ git push origin --tags  	//push all local tags to remote repository
+	e. $ git fetch 	//Download commit, file, ref from a remote to local repo directory
+	f. $ git merge origin <branch>
+	g. $ git pull origin <branch>
+	h. $ git branch		//display all local branch
+			$ git branch <branch> //create new branch
+			$ git branch -d  <branch> //delete branch
+			$ git branch D <branch>  //force delete
+			$ git branch -n <branch> 	//rename
+			$ git branch -a 	//display all remote branch
+	i. $ git checkout <branch>	//switch branch
+	j. $ git reset
+				--hard	//
+				--mixed
+				--soft 
