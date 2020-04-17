@@ -11,13 +11,13 @@
 #3: create interface
 
     public interface IGetAPI {
-      @GET("api/list_apps.php")    //url
+      @GET("***/list**_apps.php")    //url
         Call<ApiMusic> getURL();    //ApiMusic: model class contains DataItem -generated from plugin
     }
     
 #4: Add retrofit
     
-    String JSONURL = "http://cprcorp.com/cprsoftware/";    //api
+    String JSONURL = "http://cprc**p.com/****ware/";    //api
     Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(JSONURL)
                 .addConverterFactory(GsonConverterFactory.create())
