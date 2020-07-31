@@ -1,26 +1,9 @@
 abstract class BaseFragment : Fragment() {
-    companion object {
-        private var mLastClickTime = 0L
-    }
-
-    private var toast: Toast? = null
-
-
+   
     // quản lý audio
     private var mAudioManager: AudioManager? = null
     private var mTelephonyManager: TelephonyManager? = null
     private lateinit var request: AudioFocusRequest
-
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(getLayoutId(), container, false)
-    }
-
-    abstract fun getLayoutId(): Int
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -40,131 +23,7 @@ abstract class BaseFragment : Fragment() {
     }
 
 
-    fun blockMultiTouch(milisecs: Long = 600L): Boolean {
-        // mis-clicking prevention, using threshold of 200 ms
-        if (SystemClock.elapsedRealtime() - mLastClickTime < milisecs) {
-            if (context != null) {
-                showToast(requireContext(), getString(R.string.text_multi_touch))
-            }
-            return true
-        }
-        mLastClickTime = SystemClock.elapsedRealtime()
-        killToast()
-
-        return false
-    }
-
-    /**
-     * Set màu cho thanh status bar, state = true: màu chữ của thanh status bar là màu tối
-     */
-    protected fun setStatusbarColor(color: Int = Color.BLACK, state: Boolean = true) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val window = activity?.window
-            if (window != null) {
-                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-
-
-                val newUiVisibility = window.decorView.systemUiVisibility
-
-                window.decorView.systemUiVisibility = if (state) {
-                    //Dark Text to show up on your light status bar
-                    newUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-
-                } else {
-                    //Light Text to show up on your dark status bar
-                    newUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
-                }
-                window.statusBarColor = color
-//                ObjectAnimator.ofArgb(window, "statusBarColor", window.statusBarColor, color).start()
-            }
-        }
-    }
-
-    /**
-     * Nơi các view xử lý sự kiện
-     */
-    private fun addEvents() {
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    handleBackPressed()
-                }
-            })
-        initEvents()
-    }
-
-    /**
-     * Nơi xử lý xự kiện cho các view ở các fragment kế thừa
-     */
-    abstract fun initEvents()
-
-    /**
-     * Khởi tạo view ở các fragment kế thừa
-     */
-    abstract fun initViews(savedInstanceState: Bundle?)
-
-    /**
-     * Xử lý sự kiến nhấn back ở các fragment kế thừa
-     */
-    abstract fun handleBackPressed()
-
-    /**
-     * Hàm show thông báo chung cho các fragment kế thừa
-     */
-    fun showToast(context: Context, message: String) {
-        when {
-            toast == null -> {
-                // Create toast if found null, it would he the case of first call only
-                toast = Toast.makeText(context, message, Toast.LENGTH_SHORT)
-            }
-            toast!!.view == null -> {
-                // Toast not showing, so create new one
-                toast = Toast.makeText(context, message, Toast.LENGTH_SHORT)
-            }
-            else -> {
-                // Updating toast message is showing
-                toast!!.setText(message)
-            }
-        }
-        toast!!.setGravity(Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM, 0, 0)
-        // Showing toast finally
-        toast!!.show()
-    }
-
-    /**
-     * Xóa toast thông báo
-     */
-    fun killToast() {
-        toast?.cancel()
-        toast = null
-    }
-
-
-    /**
-     * Kiểm tra quyền truy cập bộ nhớ
-     */
-    protected fun haveStoragePermission() =
-        ContextCompat.checkSelfPermission(
-            requireContext(),
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        ) == PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-            requireContext(),
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ) == PERMISSION_GRANTED
-
-    /**
-     * Kiểm tra quyền truy cập camera
-     */
-    protected fun haveCameraPermission() =
-        ContextCompat.checkSelfPermission(
-            requireContext(),
-            Manifest.permission.CAMERA
-        ) == PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-            requireContext(),
-            Manifest.permission.RECORD_AUDIO
-        ) == PERMISSION_GRANTED
-
+    
     /**
      * Ngừng lắng nghe tín hiệu media
      */
