@@ -125,3 +125,20 @@ abstract class BaseFragment : Fragment() {
     }
 
 }
+
+
+
+# Các class con:
+     /**
+     * Play hoặc pause video nếu có cuộc gọi hoặc nhạc từ app khác
+     */
+    override fun isAudioLoss(state: Boolean) {
+        super.isAudioLoss(state)
+        if (state) {
+            // Mất âm thanh, pause media
+        } else {
+            // Có lại âm thanh, resume media
+        }
+    }
+Khi play media gọi hàm này trước khi play: requestAudio()
+Khi pause gọi hàm này: stopRequestAudio()
