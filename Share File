@@ -1,0 +1,64 @@
+            val builder = StrictMode.VmPolicy.Builder()
+            StrictMode.setVmPolicy(builder.build())
+            val uri =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) FileProvider.getUriForFile(
+                    context,
+                    context.packageName + ".provider",
+                    File(path)
+                ) else Uri.parse("file://$path")
+            val sendIntent = Intent()
+            sendIntent.apply {
+                action = Intent.ACTION_SEND
+                type = "image/gif"
+                putExtra(Intent.EXTRA_SUBJECT, "GIF Maker")
+                putExtra(Intent.EXTRA_STREAM, uri)
+                putExtra(Intent.EXTRA_TEXT, "Do you like it ?")
+                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            }
+
+            val chooser = Intent.createChooser(sendIntent, "Share File")
+
+            val resInfoList: List<ResolveInfo> = context.packageManager
+                .queryIntentActivities(chooser, PackageManager.MATCH_DEFAULT_ONLY)
+
+            for (resolveInfo in resInfoList) {
+                val packageName: String = resolveInfo.activityInfo.packageName
+                context.grantUriPermission(
+                    packageName,
+                    uri,
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            }
+            context.startActivity(chooser)
+            
+# Manifest
+        android:requestLegacyExternalStorage="true"
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+            
+# provider_paths.xml
+
+<paths>
+    <external-path
+        name="external"
+        path="." />
+    <external-files-path
+        name="external_files"
+        path="." />
+    <cache-path
+        name="cache"
+        path="." />
+    <external-cache-path
+        name="external_cache"
+        path="." />
+    <files-path
+        name="files"
+        path="." />
+</paths>
