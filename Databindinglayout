@@ -1,0 +1,11 @@
+#1: Operators:
+    -Mathematical: + - / * %
+    -String concatenation: +
+    -Logical: && ||
+    -Binary & | ^
+    -Unary + - ! ~
+    -Shift >> >>> <<
+    -
+    -
+    -
+    -
