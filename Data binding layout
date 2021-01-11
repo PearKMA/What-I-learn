@@ -2,10 +2,52 @@
     -Mathematical: + - / * %
     -String concatenation: +
     -Logical: && ||
-    -Binary & | ^
-    -Unary + - ! ~
-    -Shift >> >>> <<
-    -
-    -
-    -
-    -
+    -Binary: & | ^
+    -Unary: + - ! ~
+    -Shift: >> >>> <<
+    -Comparison: == > < >= <= (Note that < needs to be escaped as &lt;)
+    -instanceof
+    -Grouping: ()
+    -Literals - character, String, numeric, null
+    -Cast
+    -Method calls
+    -Field access
+    -Array access: []
+    -Ternary operator: ?:
+    -Null check: ??
+   eg:
+        android:text="@{String.valueOf(index + 1)}"
+        android:visibility="@{age > 13 ? View.GONE : View.VISIBLE}"
+        android:transitionName='@{"image_" + id}'
+        android:text="@{user.displayName ?? user.lastName}"
+#2: View references
+    eg:
+        <EditText
+            android:id="@+id/example_text"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"/>
+        <TextView
+            android:id="@+id/example_output"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{exampleText.text}"/>        // id of EditText
+#3: Collections
+    eg:
+        <data>
+            <import type="android.util.SparseArray"/>
+            <import type="java.util.Map"/>
+            <import type="java.util.List"/>
+            <variable name="list" type="List&lt;String>"/>
+            <variable name="sparse" type="SparseArray&lt;String>"/>
+            <variable name="map" type="Map&lt;String, String>"/>
+            <variable name="index" type="int"/>
+            <variable name="key" type="String"/>
+        </data>
+            …
+            android:text="@{list[index]}"
+            …
+            android:text="@{sparse[index]}"
+            …
+            android:text="@{map[key]}"
+#4:Resources
+    eg: android:text="@{@string/example_resource(user.lastName, exampleText.text)}"
