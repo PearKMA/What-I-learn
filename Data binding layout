@@ -51,3 +51,18 @@
             android:text="@{map[key]}"
 #4:Resources
     eg: android:text="@{@string/example_resource(user.lastName, exampleText.text)}"
+#5: Listener
+    fun onClickFriend(view: View) -> @{handlers::onClickFriend}
+    fun onClickFriend() -> @{() -> handlers.onClickFriend}
+    !! CheckBox: fun onCompletedChanged(task: Task, completed: Boolean) -> android:onCheckedChanged="@{(cb, isChecked) -> presenter.completeChanged(task, isChecked)}"
+    !! android:onClick="@{(v) -> v.isVisible() ? doSomething() : void}"
+#6: Import
+    if duplicate:
+        <import type="android.view.View"/>
+        <import type="com.example.real.estate.View"
+                alias="Vista"/>
+    -cast: @{((User)(user.connection)).lastName}
+    - static Fields and Method: @{MyStringUtils.capitalize(user.lastName)}
+#7: Include
+    - bind data to include layout: bind:user="@{user}"
+    !! Not work with <merge/>
