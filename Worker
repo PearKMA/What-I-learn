@@ -84,3 +84,32 @@ outputWorkInfos.observe(this){ listOfWorkInfo ->
     }
 }
 ```
+
+# Custom configuration
+## Manifest
+```
+<provider
+        android:name="androidx.work.impl.WorkManagerInitializer"
+        android:authorities="${applicationId}.workmanager-init"
+        tools:node="remove" />
+```
+
+## Application:
+```
+class App() : Application(), Configuration.Provider {
+
+    override fun getWorkManagerConfiguration(): Configuration {
+        return if (BuildConfig.DEBUG) {
+            Configuration.Builder()
+                    .setMinimumLoggingLevel(android.util.Log.DEBUG)
+                    .build()
+        } else {
+            Configuration.Builder()
+                    .setMinimumLoggingLevel(android.util.Log.ERROR)
+                    .build()
+        }
+    }
+
+...
+}
+```
