@@ -1,0 +1,86 @@
+def workVersion = '2.5.0'
+implementation "androidx.work:work-runtime-ktx:$rootProject.workVersion"
+// test
+androidTestImplementation "androidx.work:work-testing:$rootProject.workVersion"
+
+# Class:
+```
+class ClassWorker(ctx: Context, params: WorkerParameters): Worker(ctx, params) {
+    override fun doWork(): Result {
+      // do something
+      //get data
+      val data = inputData.get...(KEY)
+      // progress
+      setProgressAsync(workDataOf(PROGRESS to 100))
+      delay(100)
+      
+      return Result.success() or Result.failure()
+      // with data
+      return Result.success(outputData)
+    }
+}
+```
+
+!: OneTimeWorkRequest : execute once - PeriodicWorkRequest : Repeat on every predict time
+
+# Execute:
+```
+private val workManager = WorkManager.getInstance(application)
+//work with no params
+workManager.enqueue(OneTimeWorkRequest.from(BlurWorker::class.java))
+
+// work with params
+val blurRequest = OneTimeWorkRequestBuilder<BlurWorker>()
+                .setInputData(createInputDataForUri())
+                .build()
+workManager.enqueue(blurRequest)
+```
+
+# Chain work: After the first operation the input will be the output of previous
+```
+var continuation = workManager
+                .beginWith(OneTimeWorkRequest
+                        .from(FirstClassWorker::class.java))
+val second = OneTimeWorkRequest.Builder(SecondClassWorker::class.java).build()
+continuation = continuation.then(second)
+// Actually start the work
+continuation.enqueue()
+```
+
+!: Unique chain
+```
+var continuation = workManager
+                .beginUniqueWork(       // only once task at a same time
+                        IMAGE_MANIPULATION_WORK_NAME,   // name task
+                        ExistingWorkPolicy.REPLACE,       // Execute new task with same name depend on : REPLACE, KEEP or APPEND
+                        OneTimeWorkRequest.from(CleanupWorker::class.java)
+```
+
+# Get output data
+```
+val save = OneTimeWorkRequest.Builder(SaveImageToFileWorker::class.java)
+                .setConstraints(constraints)
+                .addTag(TAG_OUTPUT)
+                .build()
+
+internal val outputWorkInfos: LiveData<List<WorkInfo>>
+init {
+    outputWorkInfos = workManager.getWorkInfosByTagLiveData(TAG_OUTPUT)
+}
+
+
+outputWorkInfos.observe(this){ listOfWorkInfo ->
+    if (!listOfWorkInfo.isNullOrEmpty()) {
+         val workInfo = listOfWorkInfo[0]
+         if (WorkInfo.State.RUNNING == workInfo.state) {
+                    val progress = workInfo.progress.getInt(PROGRESS, 0)
+                    Timber.d("save: $progress")
+         }
+         if (workInfo.state.isFinished) {
+               showWorkFinished()
+         } else {
+               showWorkInProgress()
+         }
+    }
+}
+```
